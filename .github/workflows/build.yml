@@ -33,6 +33,10 @@ jobs:
           cp android/app/src/main/AndroidManifest.xml \
              "$APP/android/app/src/main/AndroidManifest.xml"
 
+      - name: Kunci versi plugin lifecycle
+        run: |
+          printf '\ndependency_overrides:\n  flutter_plugin_android_lifecycle: 2.0.34\n' >> "$RUNNER_TEMP/app/pubspec.yaml"
+
       - name: Build APK release
         working-directory: ${{ runner.temp }}/app
         run: |
