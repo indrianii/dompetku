@@ -1,0 +1,26 @@
+name: dompetku
+description: Personal Finance Manager - 100% offline, privat, tanpa izin internet.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sqflite: ^2.3.3
+  path: ^1.9.0
+  provider: ^6.1.2
+  intl: ^0.19.0
+  excel: ^4.0.6
+  pdf: ^3.11.0
+  file_picker: ^8.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
