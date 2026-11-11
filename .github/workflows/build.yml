@@ -1,0 +1,57 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Buat kerangka proyek Android
+        run: |
+          flutter create --platforms=android --org com.pribadi \
+            --project-name dompetku "$RUNNER_TEMP/app"
+
+      - name: Timpa dengan kode Dompetku
+        run: |
+          APP="$RUNNER_TEMP/app"
+          rm -rf "$APP/lib" "$APP/test"
+          cp -r lib "$APP/lib"
+          cp pubspec.yaml "$APP/pubspec.yaml"
+          cp android/app/src/main/AndroidManifest.xml \
+             "$APP/android/app/src/main/AndroidManifest.xml"
+
+      - name: Build APK release
+        working-directory: ${{ runner.temp }}/app
+        run: |
+          flutter pub get
+          flutter build apk --release --split-per-abi
+
+      - name: Pastikan TIDAK ada izin INTERNET
+        working-directory: ${{ runner.temp }}/app
+        run: |
+          AAPT=$(ls -d "$ANDROID_SDK_ROOT"/build-tools/*/aapt | sort -V | tail -1)
+          APK=build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          "$AAPT" dump permissions "$APK" | tee perms.txt
+          if grep -q "android.permission.INTERNET" perms.txt; then
+            echo "GAGAL: APK masih meminta izin INTERNET"
+            exit 1
+          fi
+          echo "OK: tidak ada izin INTERNET"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dompetku-apk
+          path: ${{ runner.temp }}/app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
